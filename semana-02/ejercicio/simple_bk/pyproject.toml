@@ -1,0 +1,24 @@
+[project]
+name = "simple-bk"
+version = "0.1.0"
+description = "API mínima que cifra y descifra un mensaje."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "cryptography>=50.0.2",
+    "dotenv>=0.9.9",
+    "fastapi>=0.115.0",
+    "uvicorn>=0.32.0",
+]
+
+# pytest y httpx solo hacen falta para la suite. No forman parte del arranque.
+[dependency-groups]
+dev = [
+    "httpx>=0.27.0",
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: docker-secrets-demo:insecure
+    container_name: docker-secrets-demo
+    ports:
+      - "8000:8000"
+    networks:
+      - secretos_network
+
+networks:
+  secretos_network:

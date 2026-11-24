@@ -1,0 +1,27 @@
+# Recetas de simple_bk. Ejecútalas desde esta carpeta.
+
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+imagen := "simple-bk:local"
+puerto := env_var_or_default("PORT", "8000")
+clave_ficticia := "clave-ficticia-solo-para-ejemplo"
+
+# Instala dependencias de runtime y el grupo dev (pytest, pytest-cov, httpx).
+install:
+    uv sync --locked --no-build --group dev
+
+# Corre la suite y escribe coverage.xml en esta carpeta.
+test:
+    uv run --locked --no-build --group dev pytest -v --cov=. --cov-report=xml:coverage.xml --cov-report=term-missing
+
+# Arranca la API en 0.0.0.0. Hace falta SECRET_KEY en el entorno o en .env.
+run:
+    uv run uvicorn main:app --host 0.0.0.0 --port {{puerto}}
+
+# Construye la imagen local definida en el Dockerfile de esta carpeta.
+docker-build:
+    docker build --tag {{imagen}} .
+
+# Ejecuta el contenedor con la clave ficticia de .env.example.
+docker-run:
+    docker run --rm --publish {{puerto}}:{{puerto}} --env PORT={{puerto}} --env SECRET_KEY={{clave_ficticia}} {{imagen}}

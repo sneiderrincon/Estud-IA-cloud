@@ -1,0 +1,36 @@
+name: simple-bk
+
+on:
+  push:
+    paths:
+      - "semana-02/ejercicio/simple_bk/**"
+      - ".github/workflows/simple-bk.yml"
+  pull_request:
+    paths:
+      - "semana-02/ejercicio/simple_bk/**"
+      - ".github/workflows/simple-bk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Tests de simple_bk
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: semana-02/ejercicio/simple_bk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Instalar uv y Python 3.12
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: uv sync --locked --no-build --group dev
+
+      - name: Correr tests
+        run: uv run --locked --no-build --group dev pytest -v --cov=. --cov-report=xml:coverage.xml --cov-report=term-missing

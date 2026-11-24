@@ -1,0 +1,25 @@
+# Demo de Docker Model Runner: Compose declara el modelo, lo sirve y
+# inyecta MODEL_URL + MODEL_NAME en el servicio `agente`.
+#
+# Requisitos: Docker Desktop con Model Runner habilitado, Compose >= 2.38
+# Arranque: docker compose -f dockercompose.yaml up --build
+
+services:
+  agente:
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data:ro
+    environment:
+      LOG_PATH: /data/app.log
+    models:
+      llm:
+        endpoint_var: MODEL_URL
+        model_var: MODEL_NAME
+
+models:
+  llm:
+    model: ai/smollm2

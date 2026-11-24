@@ -37,6 +37,42 @@ jobs:
             --cov-report=xml:coverage.xml \
             --cov-report=term-missing
 
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: "3.12"
+
+      - name: Cobertura de simple_bk
+        run: |
+          uv sync --locked --no-build --directory semana-02/ejercicio/simple_bk --group dev
+          ./semana-02/ejercicio/simple_bk/.venv/bin/python -m pytest \
+            semana-02/ejercicio/simple_bk/tests \
+            -v \
+            --cov=semana-02/ejercicio/simple_bk \
+            --cov-report=xml:coverage-simple-bk.xml \
+            --cov-report=term-missing
+          python3 - << 'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          # El XML de coverage.py deja el archivo como "main.py" y el directorio
+          # del paquete en <source>. Sonar compara con la ruta del repo.
+          informe = Path("coverage-simple-bk.xml")
+          prefijo = "semana-02/ejercicio/simple_bk/"
+          arbol = ET.parse(informe)
+          raiz_xml = arbol.getroot()
+          fuentes = raiz_xml.find("sources")
+          for fuente in list(fuentes):
+              fuentes.remove(fuente)
+          nueva = ET.SubElement(fuentes, "source")
+          nueva.text = str(Path.cwd().resolve())
+          for clase in raiz_xml.findall(".//class"):
+              nombre = clase.get("filename")
+              if not nombre.startswith(prefijo):
+                  clase.set("filename", prefijo + nombre)
+          arbol.write(informe, encoding="unicode", xml_declaration=True)
+          PY
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 # v8.4.0
         env:

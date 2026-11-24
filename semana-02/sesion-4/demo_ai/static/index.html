@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estud-IA Bot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #12202c;
+      --muted: #5a6b78;
+      --paper: #f3efe6;
+      --panel: #fffdf8;
+      --line: #d6cfc0;
+      --accent: #0f766e;
+      --accent-ink: #062e2b;
+      --danger: #9b2c2c;
+      --shadow: 0 18px 40px rgba(18, 32, 44, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "DM Sans", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 10% -10%, rgba(15, 118, 110, 0.18), transparent 60%),
+        radial-gradient(700px 380px at 100% 0%, rgba(180, 120, 40, 0.12), transparent 55%),
+        linear-gradient(180deg, #ebe4d6 0%, var(--paper) 45%, #e7efe9 100%);
+    }
+
+    main {
+      width: min(720px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2.5rem 0 3rem;
+    }
+
+    header {
+      margin-bottom: 1.75rem;
+      animation: rise 0.55s ease both;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.45rem;
+      margin: 0 0 0.55rem;
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+
+    .brand span {
+      color: var(--accent);
+    }
+
+    .lede {
+      margin: 0;
+      max-width: 36rem;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.45;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 1.25rem;
+      animation: rise 0.7s ease both;
+      animation-delay: 0.08s;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.45rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    textarea, .response {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #faf7f0;
+      color: var(--ink);
+      font: inherit;
+      line-height: 1.5;
+    }
+
+    textarea {
+      min-height: 120px;
+      padding: 0.9rem 1rem;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin: 0.9rem 0 1.35rem;
+    }
+
+    button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 0.7rem 1.15rem;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity: 0.55; cursor: wait; }
+
+    .primary {
+      background: var(--accent);
+      color: #f4fffc;
+    }
+
+    .primary:hover:not(:disabled) { background: #0b5f59; }
+
+    .ghost {
+      background: transparent;
+      color: var(--accent-ink);
+      border: 1px solid var(--line);
+    }
+
+    .response-wrap { animation: rise 0.75s ease both; animation-delay: 0.14s; }
+
+    .response {
+      min-height: 160px;
+      padding: 1rem;
+      white-space: pre-wrap;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.92rem;
+    }
+
+    .response.empty { color: var(--muted); }
+    .response.error { color: var(--danger); }
+
+    .status {
+      margin-top: 0.55rem;
+      min-height: 1.25rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1 class="brand">Estud-IA <span>Bot</span></h1>
+      <p class="lede">Demo de Docker Model Runner: Compose levanta <code>ai/smollm2</code>, inyecta <code>MODEL_URL</code> / <code>MODEL_NAME</code> en el backend, y esta UI prueba el modelo con el log montado.</p>
+    </header>
+
+    <section class="panel">
+      <label for="mensaje">Tu mensaje</label>
+      <textarea id="mensaje" placeholder="Ej: ¿Qué está fallando y qué reviso primero?"></textarea>
+      <div class="actions">
+        <button class="primary" id="enviar" type="button">Enviar</button>
+        <button class="ghost" id="diagnosticar" type="button">Diagnosticar log</button>
+      </div>
+
+      <div class="response-wrap">
+        <label for="respuesta">Respuesta</label>
+        <div id="respuesta" class="response empty" role="status" aria-live="polite">La respuesta aparecerá aquí.</div>
+        <p class="status" id="estado"></p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const mensaje = document.getElementById("mensaje");
+    const respuesta = document.getElementById("respuesta");
+    const estado = document.getElementById("estado");
+    const btnEnviar = document.getElementById("enviar");
+    const btnDiag = document.getElementById("diagnosticar");
+
+    function setBusy(busy) {
+      btnEnviar.disabled = busy;
+      btnDiag.disabled = busy;
+      estado.textContent = busy ? "Pensando…" : "";
+    }
+
+    function showReply(text, isError = false) {
+      respuesta.textContent = text;
+      respuesta.classList.toggle("empty", false);
+      respuesta.classList.toggle("error", isError);
+    }
+
+    async function postJSON(url, body) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: body ? { "Content-Type": "application/json" } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.detail || data.error || `HTTP ${res.status}`);
+      }
+      return data;
+    }
+
+    async function enviar() {
+      const text = mensaje.value.trim();
+      if (!text) {
+        showReply("Escribe un mensaje antes de enviar.", true);
+        return;
+      }
+      setBusy(true);
+      try {
+        const data = await postJSON("/ask", { mensaje: text });
+        showReply(data.respuesta || "(sin contenido)");
+      } catch (err) {
+        showReply(String(err.message || err), true);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function diagnosticar() {
+      setBusy(true);
+      try {
+        const data = await postJSON("/diagnosticar");
+        showReply(data.respuesta || "(sin contenido)");
+      } catch (err) {
+        showReply(String(err.message || err), true);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    btnEnviar.addEventListener("click", enviar);
+    btnDiag.addEventListener("click", diagnosticar);
+    mensaje.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") enviar();
+    });
+  </script>
+</body>
+</html>
