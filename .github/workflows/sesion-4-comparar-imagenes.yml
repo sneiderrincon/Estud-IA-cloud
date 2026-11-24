@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - cursor/semana-2-docker-cicd-bf3e
+      - main
     paths:
       - semana-02/sesion-4/demo/**
       - .github/workflows/sesion-4-comparar-imagenes.yml
